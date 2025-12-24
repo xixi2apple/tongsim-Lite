@@ -35,13 +35,13 @@ Below is a sample reward curve from a training session, showing the model's lear
 
 **Performance Comparison:**
 
-The following table shows the performance comparison of different baseline algorithms on the MACS task:
+The following table shows the performance comparison of different baseline algorithms on the MACS task. Note that due to the inherent stochasticity of multi-agent environments, the reported performance metrics may exhibit minor fluctuations; these results are primarily intended to verify the effectiveness of the environment and provide a baseline for comparison.
 
 | Method | Average Reward per Step | Average Reward |
 |--------|-------------------------|----------------|
 | MAPPO  | 0.038                   | 19.24          |
 | IPPO   | 0.030                  | 14.75         |
-| Random | -0.003                   | -1.38          |
+| Random | -0.013                   | -6.51          |
 
 
 ### Evaluating a Pre-trained Model
