@@ -5,8 +5,14 @@
 To train a new model, specify the algorithm's configuration file. For example, to train MAPPO:
 
 ```bash
-uv run examples/marl/example/train.py --config example/config/mappo.yaml
+uv run examples/marl/example/train.py  --config examples/marl/example/config/mappo.yaml  --method mappo
 ```
+
+> **Tip**: To reduce memory usage during training, it is highly recommended to disable unnecessary logs in the Unreal Engine console (press `` ` `` to open) by running:
+> ```bash
+> log LogTemp off
+> log LogTongSimGRPC off
+> ```
 
 **Available Algorithms:**
 - MAPPO: `example/config/mappo.yaml`
@@ -29,13 +35,13 @@ Below is a sample reward curve from a training session, showing the model's lear
 
 **Performance Comparison:**
 
-The following table shows the performance comparison of different baseline algorithms on the MACSR task:
+The following table shows the performance comparison of different baseline algorithms on the MACS task:
 
 | Method | Average Reward per Step | Average Reward |
 |--------|-------------------------|----------------|
 | MAPPO  | 0.038                   | 19.24          |
-| IPPO   | 0.022                  | 11.10          |
-| Random | 0.009                   | 4.601          |
+| IPPO   | 0.030                  | 14.75         |
+| Random | -0.003                   | -1.38          |
 
 
 ### Evaluating a Pre-trained Model
@@ -43,12 +49,7 @@ The following table shows the performance comparison of different baseline algor
 To evaluate the latest saved model for a given configuration, add the `--test` flag:
 
 ```bash
-uv run examples/marl/example/train.py --config example/config/mappo.yaml --test
+uv run examples/marl/example/train.py  --config examples/marl/example/config/mappo.yaml --test --method mappo
 ```
 
 The evaluation script will load the most recent checkpoint from the `models/` directory and run it in a test environment without further training.
-
-
-## Acknowledgements
-
-This project is built upon the fantastic work of the [XuanCe](https://github.com/agi-brain/xuance) team. We are also grateful for the high-quality simulation environment provided by `tongsim lite`.

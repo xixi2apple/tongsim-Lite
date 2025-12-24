@@ -1,5 +1,5 @@
 """
-Multi-Agent Cooperative Survival & Rivalry (MACSR) Environment
+Multi-Agent Cooperative Survival & Rivalry (MACS) Environment
 
 This module implements a sophisticated multi-agent reinforcement learning environment
 built on top of TongSim and Unreal Engine. The environment simulates multiple parallel
@@ -41,9 +41,9 @@ from xuance.environment.multi_agent_env.utils import (
 )
 
 
-class MACSR(gym.Env):
+class MACS(gym.Env):
     """
-    Multi-Agent Cooperative Survival & Rivalry (MACSR) environment.
+    Multi-Agent Cooperative Survival & Rivalry (MACS) environment.
 
     This is a complex multi-agent environment based on TongSim and Unreal Engine.
     In multiple parallel arenas, pursuing agents (Pursuers) must learn to cooperate
@@ -57,9 +57,9 @@ class MACSR(gym.Env):
 
     Attributes:
         num_arenas (int): Number of parallel arenas running simultaneously.
-        n_pursuers (int): Number of pursuing agents per arena.
-        n_evaders (int): Number of food entities (coins) per arena.
-        n_poisons (int): Number of poison entities per arena.
+        n_rescuers (int): Number of pursuing agents per arena.
+        n_supplies (int): Number of food entities (coins) per arena.
+        n_hazards (int): Number of poison entities per arena.
         n_coop (int): Minimum number of agents required to cooperatively capture food.
         n_sensors (int): Number of ray sensors per agent.
         sensor_range (float): Maximum detection range of ray sensors.
@@ -86,17 +86,17 @@ class MACSR(gym.Env):
         self,
         config=None,
         num_arenas: int = 4,
-        n_pursuers=5,
-        n_evaders=10,
-        n_poisons=5,
+        n_rescuers=5,
+        n_supplies=10,
+        n_hazards=5,
         n_coop=2,
         n_sensors=30,
         sensor_range=500.0,
         pursuer_max_accel=0.5,
-        evader_speed=0.15,
-        poison_speed=0.15,
-        poison_reward=-1.0,
-        food_reward=10.0,
+        supply_speed=0.15,
+        hazard_speed=0.15,
+        hazard_reward=-1.0,
+        supply_reward=10.0,
         encounter_reward=0.01,
         thrust_penalty=-0.01,
         local_ratio=0.9,
@@ -107,22 +107,22 @@ class MACSR(gym.Env):
         steering_strength=0.1,
     ):
         """
-        Initialize the MACSR environment.
+        Initialize the MACS environment.
 
         Args:
             config: Optional configuration dictionary (currently unused).
             num_arenas (int): Number of parallel arenas to simulate.
-            n_pursuers (int): Number of pursuing agents per arena.
-            n_evaders (int): Number of food entities (coins) per arena.
-            n_poisons (int): Number of poison entities per arena.
+            n_rescuers (int): Number of pursuing agents per arena.
+            n_supplies (int): Number of food entities (coins) per arena.
+            n_hazards (int): Number of poison entities per arena.
             n_coop (int): Minimum number of agents required to cooperatively capture one food entity.
             n_sensors (int): Number of ray sensors per agent for perception.
             sensor_range (float): Maximum detection range of ray sensors (in Unreal units).
             pursuer_max_accel (float): Maximum acceleration of pursuing agents (currently unused).
-            evader_speed (float): Movement speed of food entities.
-            poison_speed (float): Movement speed of poison entities.
-            poison_reward (float): Base reward value for colliding with poison (typically negative).
-            food_reward (float): Base reward value for successfully capturing food.
+            supply_speed (float): Movement speed of supply entities.
+            hazard_speed (float): Movement speed of poison entities.
+            hazard_reward (float): Base reward value for colliding with poison (typically negative).
+            supply_reward (float): Base reward value for successfully capturing supply.
             encounter_reward (float): Reward value for encountering food without successful capture.
             thrust_penalty (float): Penalty coefficient for agent movement (energy cost).
             local_ratio (float): Ratio of individual reward in final mixed reward calculation.
@@ -145,17 +145,17 @@ class MACSR(gym.Env):
 
         # --- Environment Parameters ---
         self.num_arenas = num_arenas
-        self.n_pursuers = n_pursuers
-        self.n_evaders = n_evaders
-        self.n_poisons = n_poisons
+        self.n_rescuers = n_rescuers
+        self.n_supplies = n_supplies
+        self.n_hazards = n_hazards
         self.n_coop = n_coop
         self.n_sensors = n_sensors
         self.sensor_range = sensor_range
         self.pursuer_max_accel = pursuer_max_accel
-        self.evader_speed = evader_speed
-        self.poison_speed = poison_speed
-        self.poison_reward_num = poison_reward
-        self.food_reward_num = food_reward
+        self.supply_speed = supply_speed
+        self.hazard_speed = hazard_speed
+        self.hazard_reward_num = hazard_reward
+        self.supply_reward_num = supply_reward
         self.encounter_reward_num = encounter_reward
         self.thrust_penalty = thrust_penalty
         self.local_ratio = local_ratio
@@ -164,11 +164,11 @@ class MACSR(gym.Env):
         self.render_mode = render_mode
         self.steering_strength = steering_strength
         self.env_seed = env_seed
-        self.actors_per_arena = self.n_pursuers + self.n_evaders + self.n_poisons
+        self.actors_per_arena = self.n_rescuers + self.n_supplies + self.n_hazards
 
         # --- State Variables ---
-        self.agents = [f"pursuer_{i}" for i in range(self.n_pursuers)]
-        self.num_agents = self.n_pursuers
+        self.agents = [f"pursuer_{i}" for i in range(self.n_rescuers)]
+        self.num_agents = self.n_rescuers
         self.agent_ids_map = [{} for _ in range(self.num_arenas)]
         self.arena_ids: list[str] = []
         self.arena_anchors: dict[str, ts.Transform] = {}
@@ -301,12 +301,12 @@ class MACSR(gym.Env):
         entity_configs = {
             self.ENTITY_COIN: {
                 "scale": DEFAULT_CONFIG["coin_scale"],
-                "speed": self.evader_speed,
+                "speed": self.supply_speed,
                 "pos_map_key": "coins",
             },
             self.ENTITY_POISON: {
                 "scale": DEFAULT_CONFIG["default_scale"],
-                "speed": self.poison_speed,
+                "speed": self.hazard_speed,
                 "pos_map_key": "poisons",
             },
         }
@@ -437,7 +437,7 @@ class MACSR(gym.Env):
                 spawn_actors_concurrently(
                     self.context,
                     arena_id,
-                    self.n_evaders,
+                    self.n_supplies,
                     DEFAULT_CONFIG["coin_bp_path"],
                     self.TAG_COIN,
                     DEFAULT_CONFIG["spawn_z"],
@@ -448,7 +448,7 @@ class MACSR(gym.Env):
                 spawn_actors_concurrently(
                     self.context,
                     arena_id,
-                    self.n_poisons,
+                    self.n_hazards,
                     DEFAULT_CONFIG["poison_bp_path"],
                     self.TAG_POISON,
                     DEFAULT_CONFIG["spawn_z"],
@@ -459,7 +459,7 @@ class MACSR(gym.Env):
                 spawn_actors_concurrently(
                     self.context,
                     arena_id,
-                    self.n_pursuers,
+                    self.n_rescuers,
                     DEFAULT_CONFIG["agent_bp_path"],
                     self.TAG_AGENT,
                     DEFAULT_CONFIG["spawn_z"],
@@ -559,7 +559,7 @@ class MACSR(gym.Env):
 
                     # Initialize velocity for moving entities (coins and poisons)
                     if entity_type in [self.ENTITY_COIN, self.ENTITY_POISON]:
-                        speed = self.evader_speed if entity_type == self.ENTITY_COIN else self.poison_speed
+                        speed = self.supply_speed if entity_type == self.ENTITY_COIN else self.hazard_speed
                         # Generate random movement direction
                         random_dir = self.np_random.standard_normal(2)
                         random_dir /= np.linalg.norm(random_dir) + 1e-8
@@ -753,7 +753,7 @@ class MACSR(gym.Env):
             result_offset (int): Starting index of this arena's results in the complete list.
 
         Returns:
-            np.ndarray: Observation array of shape (n_pursuers, obs_dim).
+            np.ndarray: Observation array of shape (n_rescuers, obs_dim).
 
         Raises:
             IndexError: If ray index calculation exceeds the bounds of ray_results.
@@ -772,9 +772,9 @@ class MACSR(gym.Env):
         """
         arena_data = self.arenas_data[arena_idx]
         # Initialize observation array with -1 (indicates no detection)
-        arena_obs = np.full((self.n_pursuers, self.obs_dim), -1.0, dtype=np.float32)
+        arena_obs = np.full((self.n_rescuers, self.obs_dim), -1.0, dtype=np.float32)
 
-        for agent_local_idx in range(self.n_pursuers):
+        for agent_local_idx in range(self.n_rescuers):
             for sensor_idx in range(self.n_sensors):
                 # Calculate global index in the combined ray results
                 ray_global_idx = result_offset + agent_local_idx * self.n_sensors + sensor_idx
@@ -864,7 +864,7 @@ class MACSR(gym.Env):
         arena_obs_np = self._process_rays_for_one_arena(
             arena_idx=arena_idx, all_ray_results=ray_results, all_ray_directions=rays_directions, result_offset=0
         )
-        return {self.agents[i]: arena_obs_np[i] for i in range(self.n_pursuers)}
+        return {self.agents[i]: arena_obs_np[i] for i in range(self.n_rescuers)}
 
     def process_ray_results(self, ray_results: list[dict], rays_directions_map: dict):
         """
@@ -896,7 +896,7 @@ class MACSR(gym.Env):
                 all_ray_directions=all_ray_directions,
                 result_offset=result_offset,
             )
-            observations_all_arenas[arena_idx] = {self.agents[i]: arena_obs_np[i] for i in range(self.n_pursuers)}
+            observations_all_arenas[arena_idx] = {self.agents[i]: arena_obs_np[i] for i in range(self.n_rescuers)}
 
         return observations_all_arenas
 
@@ -1016,9 +1016,9 @@ class MACSR(gym.Env):
             arena_data["hit_coin"] = {}
             arena_data["hit_poison"] = {}
             rewards_this_arena = {
-                "control": np.zeros(self.n_pursuers),
-                "food": np.zeros(self.n_pursuers),
-                "poison": np.zeros(self.n_pursuers),
+                "control": np.zeros(self.n_rescuers),
+                "food": np.zeros(self.n_rescuers),
+                "poison": np.zeros(self.n_rescuers),
             }
 
             # Create movement tasks for agents
@@ -1054,7 +1054,7 @@ class MACSR(gym.Env):
 
             # Create movement tasks for coins and poisons
             for entity_type in [self.ENTITY_COIN, self.ENTITY_POISON]:
-                speed = self.evader_speed if entity_type == self.ENTITY_COIN else self.poison_speed
+                speed = self.supply_speed if entity_type == self.ENTITY_COIN else self.hazard_speed
                 id_list_key = f"ids_of_{entity_type}s"
                 pos_map_key = f"{entity_type}s"
 
@@ -1282,11 +1282,11 @@ class MACSR(gym.Env):
         Reward Logic:
             - Coins:
                 - All colliding agents receive encounter_reward
-                - If n_coop agents collide, they additionally receive food_reward
+                - If n_coop agents collide, they additionally receive supply_reward
                 - Coin bounces regardless of capture status (simulating struggle)
                 - Captured coins are respawned
             - Poisons:
-                - Colliding agent receives poison_reward (typically negative)
+                - Colliding agent receives hazard_reward (typically negative)
                 - Poison is always respawned after collision
 
         Args:
@@ -1322,7 +1322,7 @@ class MACSR(gym.Env):
 
                     # Additional capture reward if threshold met
                     if is_captured:
-                        per_arena_rewards[arena_idx]["food"][agent_idx] += self.food_reward_num
+                        per_arena_rewards[arena_idx]["food"][agent_idx] += self.supply_reward_num
 
                 # Simulate coin bounce/struggle regardless of capture
                 old_vel = arena_data["velocities"].get(coin_id, np.zeros(2))
@@ -1342,7 +1342,7 @@ class MACSR(gym.Env):
                     if agent_id not in arena_data["ids_of_agents"]:
                         continue
                     agent_idx = arena_data["ids_of_agents"].index(agent_id)
-                    per_arena_rewards[arena_idx]["poison"][agent_idx] += self.poison_reward_num
+                    per_arena_rewards[arena_idx]["poison"][agent_idx] += self.hazard_reward_num
                     arena_data["hit_poison"][agent_idx] = 1
 
                 # Always respawn poison after collision
@@ -1396,7 +1396,7 @@ class MACSR(gym.Env):
             final_rewards = local_rewards * self.local_ratio + global_reward * (1 - self.local_ratio)
 
             # Convert to dictionary format
-            final_rewards_all_arenas.append({self.agents[i]: final_rewards[i] for i in range(self.n_pursuers)})
+            final_rewards_all_arenas.append({self.agents[i]: final_rewards[i] for i in range(self.n_rescuers)})
 
         # Step 2: Generate fresh observations through ray-tracing
         jobs, rays_directions_map = self.build_observation_rays()
@@ -1430,5 +1430,5 @@ class MACSR(gym.Env):
             Always call this method when finished with the environment to prevent
             resource leaks and ensure proper cleanup of the TongSim server connection.
         """
-        print("[INFO] Closing MACSR environment...")
+        print("[INFO] Closing MACS environment...")
         self.ue.close()
