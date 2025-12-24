@@ -1,6 +1,6 @@
 # TongSIM
 
-![TongSim Lite Hero](assets/tongsim-main.jpg)
+![TongSim Lite Hero](assets/tongsim-main.png)
 
 !!! info "🔗 相关链接"
     - 🏠 [主页](https://tongsim-platform.github.io/tongsim)

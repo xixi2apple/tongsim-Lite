@@ -2,7 +2,7 @@
 
 A high-fidelity platform for multimodal embodied agent training (Unreal Engine + Python SDK)
 
-![TongSIM Preview](docs/assets/tongsim-main.jpg)
+![TongSIM Preview](docs/assets/tongsim-main.png)
 
 **Links**
 
