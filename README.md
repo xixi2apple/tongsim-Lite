@@ -56,15 +56,45 @@ This repository contains:
    cd tongsim
    git lfs pull
    ```
-2. Generate project files (either):
-   - File Explorer: right-click `unreal/TongSIM_Lite.uproject` -> "Generate Visual Studio project files"
+2. (First-time) Download and extract the TongSimGrpc gRPC dependency bundle (Release asset) to the repo root:
+   - Windows (PowerShell):
+     ```powershell
+     $base = "https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0"
+     Invoke-WebRequest "$base/TongSimGrpc_deps.zip" -OutFile TongSimGrpc_deps.zip
+     Invoke-WebRequest "$base/TongSimGrpc_deps.zip.sha256" -OutFile TongSimGrpc_deps.zip.sha256
+
+     # (Optional) Verify checksum
+     Get-FileHash .\TongSimGrpc_deps.zip -Algorithm SHA256
+     Get-Content .\TongSimGrpc_deps.zip.sha256
+
+     # Extract to repo root
+     Expand-Archive .\TongSimGrpc_deps.zip -DestinationPath . -Force
+     ```
+   - Linux (Bash):
+     ```bash
+     base="https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0"
+     curl -L -o TongSimGrpc_deps.zip "$base/TongSimGrpc_deps.zip"
+     curl -L -o TongSimGrpc_deps.zip.sha256 "$base/TongSimGrpc_deps.zip.sha256"
+
+     # (Optional) Verify checksum
+     sha256sum -c TongSimGrpc_deps.zip.sha256
+
+     # Extract to repo root
+     unzip -o TongSimGrpc_deps.zip
+     ```
+   After extraction, you should have:
+   - `unreal/Plugins/TongSimGrpc/DynamicLibraries`
+   - `unreal/Plugins/TongSimGrpc/GrpcLibraries`
+   - `unreal/Plugins/TongSimGrpc/GrpcPrograms`
+3. Generate project files (either):
+   - File Explorer: right-click `unreal/TongSim_Lite.uproject` -> "Generate Visual Studio project files"
    - Or open the `.uproject` to let UE generate and compile modules
-3. Open `unreal/TongSIM_Lite.sln` in Visual Studio and select:
+4. Open `unreal/TongSim_Lite.sln` in Visual Studio and select:
    - Configuration: Development Editor
    - Platform: Win64
    Then Build (first build compiles TongSIM_* modules and plugins).
-4. Double-click `unreal/TongSIM_Lite.uproject` to open UE 5.6 and ensure plugins (TongSIMCore, TongSIMGrpc, Puerts, etc.) are enabled.
-5. If Windows Firewall prompts, allow UE Editor network access (gRPC defaults to `127.0.0.1:5726`).
+5. Double-click `unreal/TongSim_Lite.uproject` to open UE 5.6 and ensure plugins (TongSIMCore, TongSIMGrpc, Puerts, etc.) are enabled.
+6. If Windows Firewall prompts, allow UE Editor network access (gRPC defaults to `127.0.0.1:5726`).
 
 ### Python Installation
 
@@ -133,7 +163,7 @@ If a UUID prints with "connected", the connection is working.
 ├─ src/tongsim/                  # Python SDK core
 ├─ examples/                     # Examples (RL, voxel, etc.)
 ├─ docs/                         # Documentation sources (MkDocs)
-├─ unreal/                       # Unreal project (TongSIM_Lite.uproject)
+├─ unreal/                       # Unreal project (TongSim_Lite.uproject)
 ├─ scripts/                      # Utility scripts
 ├─ pyproject.toml                # Python project configuration (uv-compatible)
 └─ uv.lock                       # Dependency lockfile

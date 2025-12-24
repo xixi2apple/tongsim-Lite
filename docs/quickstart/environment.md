@@ -46,6 +46,53 @@ git lfs pull
 
 ---
 
+## :material-archive: Install TongSimGrpc gRPC dependencies (first-time)
+
+The `TongSimGrpc` plugin depends on prebuilt gRPC binaries and tools. To keep the Git repository lightweight, these large files are distributed as a GitHub **Release asset** (download once after cloning).
+
+- `TongSimGrpc_deps.zip`: https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0/TongSimGrpc_deps.zip
+- `TongSimGrpc_deps.zip.sha256`: https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0/TongSimGrpc_deps.zip.sha256
+
+=== ":material-microsoft-windows: Windows (PowerShell)"
+
+    ```powershell
+    $base = "https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0"
+    Invoke-WebRequest "$base/TongSimGrpc_deps.zip" -OutFile TongSimGrpc_deps.zip
+    Invoke-WebRequest "$base/TongSimGrpc_deps.zip.sha256" -OutFile TongSimGrpc_deps.zip.sha256
+
+    # (Optional) Verify checksum
+    Get-FileHash .\TongSimGrpc_deps.zip -Algorithm SHA256
+    Get-Content .\TongSimGrpc_deps.zip.sha256
+
+    # Extract to repo root
+    Expand-Archive .\TongSimGrpc_deps.zip -DestinationPath . -Force
+    ```
+
+=== ":material-linux: Linux (Bash)"
+
+    ```bash
+    base="https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0"
+    curl -L -o TongSimGrpc_deps.zip "$base/TongSimGrpc_deps.zip"
+    curl -L -o TongSimGrpc_deps.zip.sha256 "$base/TongSimGrpc_deps.zip.sha256"
+
+    # (Optional) Verify checksum
+    sha256sum -c TongSimGrpc_deps.zip.sha256
+
+    # Extract to repo root
+    unzip -o TongSimGrpc_deps.zip
+    ```
+
+After extraction, ensure these folders exist:
+
+- `unreal/Plugins/TongSimGrpc/DynamicLibraries`
+- `unreal/Plugins/TongSimGrpc/GrpcLibraries`
+- `unreal/Plugins/TongSimGrpc/GrpcPrograms`
+
+!!! note ":material-information-outline: Third-party binaries"
+    This bundle includes third-party components (e.g., gRPC/Protobuf). Their respective licenses apply.
+
+---
+
 ## :material-monitor: Build & run the Unreal project
 
 1. Open `unreal/TongSim_Lite.uproject` in **Unreal Engine 5.6**.

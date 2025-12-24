@@ -46,6 +46,53 @@ git lfs pull
 
 ---
 
+## :material-archive: （首次安装）导入 TongSimGrpc 的 gRPC 依赖
+
+`TongSimGrpc` 插件依赖预编译的 gRPC 二进制与工具链。为避免仓库体积过大，这部分文件以 GitHub **Release assets** 的形式单独发布（首次克隆后下载一次即可）。
+
+- `TongSimGrpc_deps.zip`：https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0/TongSimGrpc_deps.zip
+- `TongSimGrpc_deps.zip.sha256`：https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0/TongSimGrpc_deps.zip.sha256
+
+=== ":material-microsoft-windows: Windows（PowerShell）"
+
+    ```powershell
+    $base = "https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0"
+    Invoke-WebRequest "$base/TongSimGrpc_deps.zip" -OutFile TongSimGrpc_deps.zip
+    Invoke-WebRequest "$base/TongSimGrpc_deps.zip.sha256" -OutFile TongSimGrpc_deps.zip.sha256
+
+    #（可选）校验 SHA-256
+    Get-FileHash .\TongSimGrpc_deps.zip -Algorithm SHA256
+    Get-Content .\TongSimGrpc_deps.zip.sha256
+
+    # 解压到仓库根目录
+    Expand-Archive .\TongSimGrpc_deps.zip -DestinationPath . -Force
+    ```
+
+=== ":material-linux: Linux（Bash）"
+
+    ```bash
+    base="https://github.com/bigai-ai/tongsim/releases/download/tongsimgrpc-deps-v1.0"
+    curl -L -o TongSimGrpc_deps.zip "$base/TongSimGrpc_deps.zip"
+    curl -L -o TongSimGrpc_deps.zip.sha256 "$base/TongSimGrpc_deps.zip.sha256"
+
+    #（可选）校验 SHA-256
+    sha256sum -c TongSimGrpc_deps.zip.sha256
+
+    # 解压到仓库根目录
+    unzip -o TongSimGrpc_deps.zip
+    ```
+
+解压后请确认以下目录存在：
+
+- `unreal/Plugins/TongSimGrpc/DynamicLibraries`
+- `unreal/Plugins/TongSimGrpc/GrpcLibraries`
+- `unreal/Plugins/TongSimGrpc/GrpcPrograms`
+
+!!! note ":material-information-outline: 第三方二进制"
+    该依赖包包含第三方组件（如 gRPC/Protobuf），请遵循其各自的开源许可协议。
+
+---
+
 ## :material-monitor: 构建并运行 Unreal 工程
 
 1. 使用 **Unreal Engine 5.6** 打开 `unreal/TongSim_Lite.uproject`。
