@@ -60,3 +60,8 @@ Saved/
 *.sln
 *.vsconfig
 all.proto.desc
+
+# Tongsim gRPC deps
+unreal/Plugins/TongSimGrpc/DynamicLibraries/**
+unreal/Plugins/TongSimGrpc/GrpcLibraries/**
+unreal/Plugins/TongSimGrpc/GrpcPrograms/**
