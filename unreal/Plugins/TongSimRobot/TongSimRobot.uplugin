@@ -1,0 +1,33 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "Simple Dual Module Plugin",
+  "Description": "一个包含 Runtime 和 Editor 双模块的简单 UE 插件",
+  "Category": "Custom",
+  "CreatedBy": "Your Name",
+  "CanContainContent": false,
+  "IsBetaVersion": false,
+  "IsExperimental": false,
+  "Modules": [
+    {
+      "Name": "TongSimRobot",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms": [
+        "Linux"
+      ]
+    },
+    {
+      "Name": "TongSimRobotEditor",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms": [
+        "Linux"
+      ],
+      "Dependencies": [
+        "TongSimRobot"
+      ]
+    }
+  ]
+}

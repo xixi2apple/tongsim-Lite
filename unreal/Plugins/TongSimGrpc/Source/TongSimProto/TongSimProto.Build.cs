@@ -125,6 +125,7 @@ public class TongSimProto : ModuleRules
 		Console.WriteLine($"[Protobuf] Generated descriptor: {descOut}");
 
 		WrapGeneratedProtoSources(genPath);
+		PublicIncludePaths.Add(genPath);
 
 		/*
 		string structOutPath = Path.Combine(ModuleDirectory, "Public", "AutoGenStructs");

@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.6",
+	"EngineAssociation": "{9EBCCC93-010D-4280-A471-CA30F894180D}",
 	"Category": "Games",
 	"Description": "TongSim Lite",
 	"Modules": [
@@ -21,6 +21,10 @@
 		},
 		{
 			"Name": "ModularGameplayActors",
+			"Enabled": true
+		},
+		{
+			"Name": "TongSimRobot",
 			"Enabled": true
 		}
 	]
