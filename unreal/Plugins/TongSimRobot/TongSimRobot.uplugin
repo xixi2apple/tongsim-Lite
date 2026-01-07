@@ -13,18 +13,12 @@
     {
       "Name": "TongSimRobot",
       "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "WhitelistPlatforms": [
-        "Linux"
-      ]
+      "LoadingPhase": "Default"
     },
     {
       "Name": "TongSimRobotEditor",
       "Type": "Editor",
       "LoadingPhase": "Default",
-      "WhitelistPlatforms": [
-        "Linux"
-      ],
       "Dependencies": [
         "TongSimRobot"
       ]

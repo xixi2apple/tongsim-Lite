@@ -9,7 +9,7 @@
 /** Forward Decl for implementation */
 class FMjcfFile;
 
-class TONGSIMROBOT_API FMjcfAttribute
+class TONGSIMROBOTEDITOR_API FMjcfAttribute
 {
 public:
 	FMjcfAttribute(const FString& InTag, const FString& InValue)
@@ -39,7 +39,7 @@ private:
 };
 
 /** Xml Node representing a line in an xml file */
-class FMjcfNode
+class TONGSIMROBOTEDITOR_API FMjcfNode
 {
 	friend class FMjcfFile;
 

@@ -22,7 +22,7 @@ namespace EMjcfConstructMethod
 }
 
 /** Class representing an XML file */
-class TONGSIMROBOT_API FMjcfFile
+class TONGSIMROBOTEDITOR_API FMjcfFile
 {
 public:
 
